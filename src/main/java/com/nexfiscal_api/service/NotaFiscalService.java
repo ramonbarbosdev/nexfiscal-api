@@ -116,6 +116,15 @@ public class NotaFiscalService {
     }
 
     @Transactional
+    public void excluir(Long id) {
+        NotaFiscal entity = buscarEntidade(id);
+        if ("emitida".equals(entity.getDsStatus())) {
+            throw new BusinessException("Cancele a nota fiscal antes de excluir");
+        }
+        repository.delete(entity);
+    }
+
+    @Transactional
     public List<InvoiceDto> importar(Object payload) {
         List<?> rawList = extrairLista(payload);
         List<InvoiceDto> importadas = new ArrayList<>();

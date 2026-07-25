@@ -89,6 +89,11 @@ public class PropostaService {
         return PropostaMapper.toDto(repository.save(copy));
     }
 
+    @Transactional
+    public void excluir(Long id) {
+        repository.delete(buscarEntidade(id));
+    }
+
     private Proposta buscarEntidade(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Proposta não encontrada"));
