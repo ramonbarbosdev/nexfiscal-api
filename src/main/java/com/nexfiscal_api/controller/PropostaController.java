@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nexfiscal_api.dto.proposal.ProposalDto;
-import com.nexfiscal_api.dto.proposal.ProposalFormDto;
 import com.nexfiscal_api.dto.proposal.ProposalStatusPatchRequest;
+import com.nexfiscal_api.dto.proposal.ProposalWriteDto;
 import com.nexfiscal_api.service.PropostaService;
 
 import jakarta.validation.Valid;
@@ -44,12 +44,12 @@ public class PropostaController {
     }
 
     @PostMapping
-    public ResponseEntity<ProposalDto> criar(@RequestBody ProposalFormDto form) {
+    public ResponseEntity<ProposalDto> criar(@RequestBody ProposalWriteDto form) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.criar(form));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProposalDto> atualizar(@PathVariable Long id, @RequestBody ProposalFormDto form) {
+    public ResponseEntity<ProposalDto> atualizar(@PathVariable Long id, @RequestBody ProposalWriteDto form) {
         return ResponseEntity.ok(service.atualizar(id, form));
     }
 

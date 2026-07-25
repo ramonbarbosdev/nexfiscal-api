@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nexfiscal_api.dto.proposal.ProposalDto;
 import com.nexfiscal_api.dto.proposal.ProposalFormDto;
+import com.nexfiscal_api.dto.proposal.ProposalWriteDto;
 import com.nexfiscal_api.exception.BusinessException;
 import com.nexfiscal_api.exception.ResourceNotFoundException;
 import com.nexfiscal_api.mapper.PropostaMapper;
@@ -26,6 +27,8 @@ public class PropostaService {
 
     private final PropostaRepository repository;
     private final PropostaNumeroGenerator numeroGenerator;
+    private final EmpresaService empresaService;
+    private final ClienteService clienteService;
 
     @Transactional(readOnly = true)
     public Page<ProposalDto> listar(String busca, String status, Pageable pageable) {
@@ -39,7 +42,7 @@ public class PropostaService {
     }
 
     @Transactional
-    public ProposalDto criar(ProposalFormDto form) {
+    public ProposalDto criar(ProposalWriteDto request) {
         int ano = Year.now().getValue();
         int seq = numeroGenerator.proximoSeq(ano);
 
@@ -48,15 +51,19 @@ public class PropostaService {
         entity.setNuSeq(seq);
         entity.setNuNumero(String.format("%d-%04d", ano, seq));
         entity.setDsStatus("pendente");
-        PropostaMapper.applyForm(entity, form);
-        return PropostaMapper.toDto(repository.save(entity));
+        PropostaMapper.applyForm(entity, request.toForm());
+        ProposalDto saved = PropostaMapper.toDto(repository.save(entity));
+        persistirCadastros(request);
+        return saved;
     }
 
     @Transactional
-    public ProposalDto atualizar(Long id, ProposalFormDto form) {
+    public ProposalDto atualizar(Long id, ProposalWriteDto request) {
         Proposta entity = buscarEntidade(id);
-        PropostaMapper.applyForm(entity, form);
-        return PropostaMapper.toDto(repository.save(entity));
+        PropostaMapper.applyForm(entity, request.toForm());
+        ProposalDto saved = PropostaMapper.toDto(repository.save(entity));
+        persistirCadastros(request);
+        return saved;
     }
 
     @Transactional
@@ -98,6 +105,15 @@ public class PropostaService {
     private void validarStatus(String status) {
         if (!STATUS_VALIDOS.contains(status)) {
             throw new BusinessException("Status inválido: " + status);
+        }
+    }
+
+    private void persistirCadastros(ProposalWriteDto request) {
+        if (request.deveSalvarEmpresa()) {
+            empresaService.salvarDaProposta(request.empresa(), request.empresaId());
+        }
+        if (request.deveSalvarCliente()) {
+            clienteService.salvarDaProposta(request.cliente(), request.clienteId());
         }
     }
 }
