@@ -12,7 +12,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  CONTAINER_PORT: 8085
+  CONTAINER_PORT: 8080
   DOCKER_NETWORK: app-network
 
 jobs:
