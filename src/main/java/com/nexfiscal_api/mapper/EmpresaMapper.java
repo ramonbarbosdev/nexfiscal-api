@@ -21,6 +21,14 @@ public final class EmpresaMapper {
                 entity.getDsWhatsapp(),
                 entity.getDsInstagram(),
                 entity.getNmEmail(),
+                AddressMapper.toDto(
+                        entity.getLogradouro(),
+                        entity.getNumero(),
+                        entity.getComplemento(),
+                        entity.getBairro(),
+                        entity.getCidade(),
+                        entity.getUf(),
+                        entity.getCep()),
                 toOffset(entity.getDtCriacao()));
     }
 
@@ -30,6 +38,7 @@ public final class EmpresaMapper {
         entity.setDsWhatsapp(nullToEmpty(form.whatsapp()));
         entity.setDsInstagram(nullToEmpty(form.instagram()));
         entity.setNmEmail(nullToEmpty(form.email()));
+        AddressMapper.apply(entity, form.endereco());
     }
 
     public static void applyFromProposal(Empresa entity, ProposalEmpresaDto dto) {
@@ -41,7 +50,7 @@ public final class EmpresaMapper {
     }
 
     public static EmpresaFormDto toFormDto(ProposalEmpresaDto dto) {
-        return new EmpresaFormDto(dto.logo(), dto.nome(), dto.whatsapp(), dto.instagram(), dto.email());
+        return new EmpresaFormDto(dto.logo(), dto.nome(), dto.whatsapp(), dto.instagram(), dto.email(), null);
     }
 
     public static ProposalEmpresaDto toProposalDto(Empresa entity) {

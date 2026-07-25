@@ -10,11 +10,13 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import com.nexfiscal_api.mapper.AddressMapper;
+
 @Getter
 @Setter
 @Entity
 @Table(name = "empresa")
-public class Empresa extends AuditableEntity {
+public class Empresa extends AuditableEntity implements AddressMapper.AddressWritable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_empresa")
@@ -36,4 +38,25 @@ public class Empresa extends AuditableEntity {
 
     @Column(name = "nm_email", nullable = false)
     private String nmEmail = "";
+
+    @Column(name = "nm_logradouro", nullable = false)
+    private String logradouro = "";
+
+    @Column(name = "ds_numero", nullable = false)
+    private String numero = "";
+
+    @Column(name = "ds_complemento", nullable = false)
+    private String complemento = "";
+
+    @Column(name = "nm_bairro", nullable = false)
+    private String bairro = "";
+
+    @Column(name = "nm_cidade", nullable = false)
+    private String cidade = "";
+
+    @Column(name = "sg_uf", nullable = false)
+    private String uf = "";
+
+    @Column(name = "ds_cep", nullable = false)
+    private String cep = "";
 }

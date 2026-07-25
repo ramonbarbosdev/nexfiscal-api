@@ -18,12 +18,21 @@ public final class ClienteMapper {
                 entity.getIdCliente(),
                 entity.getNmCliente(),
                 entity.getDsTelefone(),
+                AddressMapper.toDto(
+                        entity.getLogradouro(),
+                        entity.getNumero(),
+                        entity.getComplemento(),
+                        entity.getBairro(),
+                        entity.getCidade(),
+                        entity.getUf(),
+                        entity.getCep()),
                 toOffset(entity.getDtCriacao()));
     }
 
     public static void applyForm(Cliente entity, ClienteFormDto form) {
         entity.setNmCliente(nullToEmpty(form.nome()));
         entity.setDsTelefone(nullToEmpty(form.telefone()));
+        AddressMapper.apply(entity, form.endereco());
     }
 
     public static void applyFromProposal(Cliente entity, ProposalClienteDto dto) {
@@ -32,7 +41,7 @@ public final class ClienteMapper {
     }
 
     public static ClienteFormDto toFormDto(ProposalClienteDto dto) {
-        return new ClienteFormDto(dto.nome(), dto.telefone());
+        return new ClienteFormDto(dto.nome(), dto.telefone(), null);
     }
 
     public static ProposalClienteDto toProposalDto(Cliente entity) {
