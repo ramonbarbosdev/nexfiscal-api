@@ -39,6 +39,9 @@ public class Empresa extends AuditableEntity implements AddressMapper.AddressWri
     @Column(name = "nm_email", nullable = false)
     private String nmEmail = "";
 
+    @Column(name = "ds_cnpj", nullable = false)
+    private String dsCnpj = "";
+
     @Column(name = "nm_logradouro", nullable = false)
     private String logradouro = "";
 

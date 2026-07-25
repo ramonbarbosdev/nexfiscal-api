@@ -30,6 +30,12 @@ public class Cliente extends AuditableEntity implements AddressMapper.AddressWri
     @Column(name = "ds_telefone", nullable = false)
     private String dsTelefone = "";
 
+    @Column(name = "ds_tipo", nullable = false)
+    private String dsTipo = "pf";
+
+    @Column(name = "ds_cpf_cnpj", nullable = false)
+    private String dsCpfCnpj = "";
+
     @Column(name = "nm_logradouro", nullable = false)
     private String logradouro = "";
 

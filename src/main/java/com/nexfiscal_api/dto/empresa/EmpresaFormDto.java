@@ -10,5 +10,6 @@ public record EmpresaFormDto(
         String whatsapp,
         String instagram,
         String email,
+        String cnpj,
         PartyAddressDto endereco) {
 }

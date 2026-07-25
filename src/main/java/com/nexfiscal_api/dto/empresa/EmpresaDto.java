@@ -11,6 +11,7 @@ public record EmpresaDto(
         String whatsapp,
         String instagram,
         String email,
+        String cnpj,
         PartyAddressDto endereco,
         OffsetDateTime createdAt) {
 }

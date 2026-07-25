@@ -18,6 +18,8 @@ public final class ClienteMapper {
                 entity.getIdCliente(),
                 entity.getNmCliente(),
                 entity.getDsTelefone(),
+                entity.getDsTipo(),
+                entity.getDsCpfCnpj(),
                 AddressMapper.toDto(
                         entity.getLogradouro(),
                         entity.getNumero(),
@@ -32,6 +34,8 @@ public final class ClienteMapper {
     public static void applyForm(Cliente entity, ClienteFormDto form) {
         entity.setNmCliente(nullToEmpty(form.nome()));
         entity.setDsTelefone(nullToEmpty(form.telefone()));
+        entity.setDsTipo(normalizeTipo(form.tipo()));
+        entity.setDsCpfCnpj(nullToEmpty(form.cpfCnpj()));
         AddressMapper.apply(entity, form.endereco());
     }
 
@@ -41,7 +45,7 @@ public final class ClienteMapper {
     }
 
     public static ClienteFormDto toFormDto(ProposalClienteDto dto) {
-        return new ClienteFormDto(dto.nome(), dto.telefone(), null);
+        return new ClienteFormDto(dto.nome(), dto.telefone(), "pf", "", null);
     }
 
     public static ProposalClienteDto toProposalDto(Cliente entity) {
@@ -54,5 +58,9 @@ public final class ClienteMapper {
 
     private static String nullToEmpty(String value) {
         return value == null ? "" : value;
+    }
+
+    private static String normalizeTipo(String tipo) {
+        return "pj".equalsIgnoreCase(nullToEmpty(tipo)) ? "pj" : "pf";
     }
 }
