@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: nexfiscal-postgres
+    environment:
+      POSTGRES_DB: nexfiscal
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d nexfiscal"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    container_name: nexfiscal-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${SERVER_PORT:-8085}:${SERVER_PORT:-8085}"
+    environment:
+      SERVER_PORT: ${SERVER_PORT:-8085}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: nexfiscal
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: change-me-to-a-long-random-secret-key-at-least-32-chars
+      JWT_EXPIRATION_MINUTES: 480
+      ADMIN_EMAIL: admin@nexfiscal.local
+      ADMIN_PASSWORD: admin123
+      FRONTEND_URL: http://localhost:5173
+      APP_SWAGGER_SERVER_URL: http://localhost:${SERVER_PORT:-8085}/api
+
+volumes:
+  postgres_data:

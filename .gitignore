@@ -1,0 +1,31 @@
+# Build
+target/
+
+# Maven wrapper jar is committed; ignore downloaded artifacts only
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+.factorypath
+
+# Environment (never commit secrets)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+hs_err_pid*
+
+# Cursor / tooling artifacts
+.github/modernize/
