@@ -38,7 +38,7 @@ jobs:
           echo "latest_tag=prod-latest" >> "$GITHUB_OUTPUT"
           echo "container_name=nexfiscal-api-prod" >> "$GITHUB_OUTPUT"
           echo "host_port=8085" >> "$GITHUB_OUTPUT"
-          echo "env_file=/home/app/nexfiscal-api-prod.env" >> "$GITHUB_OUTPUT"
+          echo "env_file=/home/app/api-nexfiscal.env" >> "$GITHUB_OUTPUT"
 
   build-and-push:
     needs: prepare
