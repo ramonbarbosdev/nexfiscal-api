@@ -13,7 +13,7 @@ permissions:
 env:
   REGISTRY: ghcr.io
   CONTAINER_PORT: 8085
-  DOCKER_NETWORK: network-nexfiscal
+  DOCKER_NETWORK: app-network
 
 jobs:
   prepare:
