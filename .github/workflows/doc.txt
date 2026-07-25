@@ -1,0 +1,35 @@
+Deploy NexFiscal API — produção
+
+Arquivo:
+    .github/workflows/docker.yml
+
+Fluxo:
+    Push na main → Build Docker → Push GHCR → SSH no servidor → Pull → Restart container
+
+Container:
+    nexfiscal-api-prod
+    Porta host: 8085
+    Rede Docker: network-nexfiscal
+    Env file no servidor: /home/app/nexfiscal-api-prod.env
+
+GitHub — environment "prod":
+    Secrets:
+        SERVER_HOST
+        SERVER_USER
+        SERVER_SSH_KEY
+        SERVER_PORT
+
+Exemplo /home/app/nexfiscal-api-prod.env:
+    SERVER_PORT=8085
+    DB_HOST=...
+    DB_PORT=5432
+    DB_NAME=nexfiscal
+    DB_USERNAME=...
+    DB_PASSWORD=...
+    JWT_SECRET=...
+    JWT_EXPIRATION_MINUTES=480
+    ADMIN_EMAIL=...
+    ADMIN_PASSWORD=...
+    FRONTEND_URL=https://seu-dominio-front
+    APP_SWAGGER_SERVER_URL=https://seu-dominio-api/api
+    VIACEP_BASE_URL=https://viacep.com.br/ws
