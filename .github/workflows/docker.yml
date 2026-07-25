@@ -37,7 +37,7 @@ jobs:
           echo "image_tag=prod-${{ github.sha }}" >> "$GITHUB_OUTPUT"
           echo "latest_tag=prod-latest" >> "$GITHUB_OUTPUT"
           echo "container_name=nexfiscal-api-prod" >> "$GITHUB_OUTPUT"
-          echo "host_port=8085" >> "$GITHUB_OUTPUT"
+          echo "host_port=8080" >> "$GITHUB_OUTPUT"
           echo "env_file=/home/app/api-nexfiscal.env" >> "$GITHUB_OUTPUT"
 
   build-and-push:
@@ -98,6 +98,16 @@ jobs:
 
             docker stop "$CONTAINER_NAME" || true
             docker rm "$CONTAINER_NAME" || true
+
+            # Libera a porta caso outro container (nome diferente) ainda esteja publicando-a
+            for cid in $(docker ps -q --filter "publish=${HOST_PORT}"); do
+              echo "Parando container $cid que ocupa a porta ${HOST_PORT}..."
+              docker stop "$cid" || true
+              docker rm "$cid" || true
+            done
+
+            # Remove restos de deploys que falharam no networking
+            docker ps -aq --filter "status=created" | xargs -r docker rm -f || true
 
             docker run -d \
               --name "$CONTAINER_NAME" \

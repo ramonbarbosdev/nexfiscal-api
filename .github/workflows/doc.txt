@@ -8,7 +8,7 @@ Fluxo:
 
 Container:
     nexfiscal-api-prod
-    Porta host: 8085
+    Porta host: 8080 (container escuta na 8080)
     Rede Docker: network-nexfiscal
     Env file no servidor: /home/app/nexfiscal-api-prod.env
 
@@ -20,7 +20,7 @@ GitHub — environment "prod":
         SERVER_PORT
 
 Exemplo /home/app/nexfiscal-api-prod.env:
-    SERVER_PORT=8085
+    SERVER_PORT=8080
     DB_HOST=...
     DB_PORT=5432
     DB_NAME=nexfiscal
