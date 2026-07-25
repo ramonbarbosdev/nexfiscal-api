@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PropostaService {
 
-    private static final Set<String> STATUS_VALIDOS = Set.of("pendente", "aprovada", "cancelada");
+    private static final Set<String> STATUS_VALIDOS = Set.of("pendente", "aprovada", "cancelada", "concluida");
 
     private final PropostaRepository repository;
     private final PropostaNumeroGenerator numeroGenerator;
