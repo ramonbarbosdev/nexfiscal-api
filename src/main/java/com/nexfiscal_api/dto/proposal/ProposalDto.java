@@ -9,6 +9,8 @@ public record ProposalDto(
         String numero,
         String status,
         OffsetDateTime createdAt,
+        Long empresaId,
+        Long clienteId,
         ProposalEmpresaDto empresa,
         ProposalClienteDto cliente,
         ProposalProjetoDto projeto,

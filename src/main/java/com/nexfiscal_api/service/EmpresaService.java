@@ -8,10 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nexfiscal_api.dto.empresa.EmpresaDto;
 import com.nexfiscal_api.dto.empresa.EmpresaFormDto;
 import com.nexfiscal_api.dto.proposal.ProposalEmpresaDto;
+import com.nexfiscal_api.exception.ConflictException;
 import com.nexfiscal_api.exception.ResourceNotFoundException;
 import com.nexfiscal_api.mapper.EmpresaMapper;
 import com.nexfiscal_api.model.Empresa;
 import com.nexfiscal_api.repository.EmpresaRepository;
+import com.nexfiscal_api.repository.PropostaRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class EmpresaService {
 
     private final EmpresaRepository repository;
+    private final PropostaRepository propostaRepository;
 
     @Transactional(readOnly = true)
     public Page<EmpresaDto> listar(String busca, Pageable pageable) {
@@ -47,13 +50,19 @@ public class EmpresaService {
 
     @Transactional
     public void excluir(Long id) {
+        long vinculos = propostaRepository.countByEmpresa_IdEmpresa(id);
+        if (vinculos > 0) {
+            throw new ConflictException(
+                    "Não é possível excluir esta empresa pois ela está vinculada a "
+                            + vinculos + " proposta(s).");
+        }
         repository.delete(buscarEntidade(id));
     }
 
     @Transactional
-    public void salvarDaProposta(ProposalEmpresaDto dto, Long empresaId) {
+    public Long salvarDaProposta(ProposalEmpresaDto dto, Long empresaId) {
         if (dto == null || isBlank(dto.nome())) {
-            return;
+            return empresaId;
         }
 
         Empresa entity;
@@ -64,7 +73,7 @@ public class EmpresaService {
         }
 
         EmpresaMapper.applyFromProposal(entity, dto);
-        repository.save(entity);
+        return repository.save(entity).getIdEmpresa();
     }
 
     private Empresa buscarEntidade(Long id) {

@@ -10,6 +10,10 @@ import com.nexfiscal_api.model.Proposta;
 
 public interface PropostaRepository extends JpaRepository<Proposta, Long> {
 
+    long countByEmpresa_IdEmpresa(Long idEmpresa);
+
+    long countByCliente_IdCliente(Long idCliente);
+
     @Query("""
             select p from Proposta p
             where (:status is null or p.dsStatus = :status)

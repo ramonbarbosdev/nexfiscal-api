@@ -8,10 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nexfiscal_api.dto.cliente.ClienteDto;
 import com.nexfiscal_api.dto.cliente.ClienteFormDto;
 import com.nexfiscal_api.dto.proposal.ProposalClienteDto;
+import com.nexfiscal_api.exception.ConflictException;
 import com.nexfiscal_api.exception.ResourceNotFoundException;
 import com.nexfiscal_api.mapper.ClienteMapper;
 import com.nexfiscal_api.model.Cliente;
 import com.nexfiscal_api.repository.ClienteRepository;
+import com.nexfiscal_api.repository.PropostaRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class ClienteService {
 
     private final ClienteRepository repository;
+    private final PropostaRepository propostaRepository;
 
     @Transactional(readOnly = true)
     public Page<ClienteDto> listar(String busca, Pageable pageable) {
@@ -47,13 +50,19 @@ public class ClienteService {
 
     @Transactional
     public void excluir(Long id) {
+        long vinculos = propostaRepository.countByCliente_IdCliente(id);
+        if (vinculos > 0) {
+            throw new ConflictException(
+                    "Não é possível excluir este cliente pois ele está vinculado a "
+                            + vinculos + " proposta(s).");
+        }
         repository.delete(buscarEntidade(id));
     }
 
     @Transactional
-    public void salvarDaProposta(ProposalClienteDto dto, Long clienteId) {
+    public Long salvarDaProposta(ProposalClienteDto dto, Long clienteId) {
         if (dto == null || isBlank(dto.nome())) {
-            return;
+            return clienteId;
         }
 
         Cliente entity;
@@ -64,7 +73,7 @@ public class ClienteService {
         }
 
         ClienteMapper.applyFromProposal(entity, dto);
-        repository.save(entity);
+        return repository.save(entity).getIdCliente();
     }
 
     private Cliente buscarEntidade(Long id) {

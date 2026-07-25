@@ -108,10 +108,21 @@ public class GlobalExceptionHandler {
                 ? ex.getMostSpecificCause().getMessage()
                 : ex.getMessage();
 
+        String message = "Não é possível excluir este registro pois ele está em uso.";
+        if (detail != null) {
+            if (detail.contains("fk_proposta_empresa")) {
+                message = "Não é possível excluir esta empresa pois ela está vinculada a propostas.";
+            } else if (detail.contains("fk_proposta_cliente")) {
+                message = "Não é possível excluir este cliente pois ele está vinculado a propostas.";
+            } else if (detail.contains("fk_item_proposta_item_catalogo")) {
+                message = "Não é possível excluir este item pois ele está vinculado a propostas.";
+            }
+        }
+
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiErrorResponse.builder()
                 .status(409)
                 .error("DATA_INTEGRITY")
-                .message("Registro duplicado ou inconsistente.")
+                .message(message)
                 .debugMessage(detail)
                 .path(request.getRequestURI())
                 .timestamp(LocalDateTime.now())

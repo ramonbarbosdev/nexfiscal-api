@@ -39,4 +39,8 @@ public class ItemProposta {
 
     @Column(name = "vl_unitario", nullable = false)
     private BigDecimal vlUnitario = BigDecimal.ZERO;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_item_catalogo")
+    private ItemCatalogo itemCatalogo;
 }

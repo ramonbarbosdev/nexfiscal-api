@@ -6,5 +6,6 @@ public record ProposalItemDto(
         Long id,
         String desc,
         BigDecimal qtd,
-        BigDecimal valor) {
+        BigDecimal valor,
+        Long catalogItemId) {
 }

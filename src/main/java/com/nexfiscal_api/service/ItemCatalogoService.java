@@ -7,10 +7,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nexfiscal_api.dto.item.ItemCatalogoDto;
 import com.nexfiscal_api.dto.item.ItemCatalogoFormDto;
+import com.nexfiscal_api.exception.ConflictException;
 import com.nexfiscal_api.exception.ResourceNotFoundException;
 import com.nexfiscal_api.mapper.ItemCatalogoMapper;
 import com.nexfiscal_api.model.ItemCatalogo;
 import com.nexfiscal_api.repository.ItemCatalogoRepository;
+import com.nexfiscal_api.repository.ItemPropostaRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class ItemCatalogoService {
 
     private final ItemCatalogoRepository repository;
+    private final ItemPropostaRepository itemPropostaRepository;
 
     @Transactional(readOnly = true)
     public Page<ItemCatalogoDto> listar(String busca, String tipo, Pageable pageable) {
@@ -46,6 +49,12 @@ public class ItemCatalogoService {
 
     @Transactional
     public void excluir(Long id) {
+        long vinculos = itemPropostaRepository.countByItemCatalogo_IdItemCatalogo(id);
+        if (vinculos > 0) {
+            throw new ConflictException(
+                    "Não é possível excluir este item pois ele está vinculado a "
+                            + vinculos + " proposta(s).");
+        }
         repository.delete(buscarEntidade(id));
     }
 

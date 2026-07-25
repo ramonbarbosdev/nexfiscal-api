@@ -10,6 +10,9 @@ import com.nexfiscal_api.dto.proposal.ProposalEmpresaDto;
 import com.nexfiscal_api.dto.proposal.ProposalFormDto;
 import com.nexfiscal_api.dto.proposal.ProposalItemDto;
 import com.nexfiscal_api.dto.proposal.ProposalProjetoDto;
+import com.nexfiscal_api.model.Cliente;
+import com.nexfiscal_api.model.Empresa;
+import com.nexfiscal_api.model.ItemCatalogo;
 import com.nexfiscal_api.model.ItemProposta;
 import com.nexfiscal_api.model.Proposta;
 
@@ -24,6 +27,8 @@ public final class PropostaMapper {
                 entity.getNuNumero(),
                 entity.getDsStatus(),
                 toOffset(entity.getDtCriacao()),
+                entity.getEmpresa() != null ? entity.getEmpresa().getIdEmpresa() : null,
+                entity.getCliente() != null ? entity.getCliente().getIdCliente() : null,
                 new ProposalEmpresaDto(
                         entity.getDsEmpresaLogo(),
                         entity.getNmEmpresa(),
@@ -49,7 +54,8 @@ public final class PropostaMapper {
                 item.getIdItemProposta(),
                 item.getDsDescricao(),
                 item.getQtQuantidade(),
-                item.getVlUnitario());
+                item.getVlUnitario(),
+                item.getItemCatalogo() != null ? item.getItemCatalogo().getIdItemCatalogo() : null);
     }
 
     public static void applyForm(Proposta entity, ProposalFormDto form) {
@@ -78,6 +84,11 @@ public final class PropostaMapper {
         syncItens(entity, form.itens());
     }
 
+    public static void applyReferencias(Proposta entity, Empresa empresa, Cliente cliente) {
+        entity.setEmpresa(empresa);
+        entity.setCliente(cliente);
+    }
+
     private static void syncItens(Proposta entity, List<ProposalItemDto> itens) {
         entity.getItens().clear();
         if (itens == null) {
@@ -89,6 +100,11 @@ public final class PropostaMapper {
             item.setDsDescricao(nullToEmpty(itemDto.desc()));
             item.setQtQuantidade(itemDto.qtd() != null ? itemDto.qtd() : item.getQtQuantidade());
             item.setVlUnitario(itemDto.valor() != null ? itemDto.valor() : item.getVlUnitario());
+            if (itemDto.catalogItemId() != null) {
+                ItemCatalogo catalogo = new ItemCatalogo();
+                catalogo.setIdItemCatalogo(itemDto.catalogItemId());
+                item.setItemCatalogo(catalogo);
+            }
             entity.getItens().add(item);
         }
     }
@@ -110,6 +126,8 @@ public final class PropostaMapper {
         target.setVlEntrada(source.getVlEntrada());
         target.setDsFormaPagamento(source.getDsFormaPagamento());
         target.setDsObservacoes(source.getDsObservacoes());
+        target.setEmpresa(source.getEmpresa());
+        target.setCliente(source.getCliente());
         target.getItens().clear();
         for (ItemProposta item : source.getItens()) {
             ItemProposta copy = new ItemProposta();
@@ -117,6 +135,7 @@ public final class PropostaMapper {
             copy.setDsDescricao(item.getDsDescricao());
             copy.setQtQuantidade(item.getQtQuantidade());
             copy.setVlUnitario(item.getVlUnitario());
+            copy.setItemCatalogo(item.getItemCatalogo());
             target.getItens().add(copy);
         }
     }

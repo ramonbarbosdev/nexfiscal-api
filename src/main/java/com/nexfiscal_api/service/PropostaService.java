@@ -9,12 +9,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nexfiscal_api.dto.proposal.ProposalDto;
-import com.nexfiscal_api.dto.proposal.ProposalFormDto;
 import com.nexfiscal_api.dto.proposal.ProposalWriteDto;
 import com.nexfiscal_api.exception.BusinessException;
 import com.nexfiscal_api.exception.ResourceNotFoundException;
 import com.nexfiscal_api.mapper.PropostaMapper;
+import com.nexfiscal_api.model.Cliente;
+import com.nexfiscal_api.model.Empresa;
 import com.nexfiscal_api.model.Proposta;
+import com.nexfiscal_api.repository.ClienteRepository;
+import com.nexfiscal_api.repository.EmpresaRepository;
 import com.nexfiscal_api.repository.PropostaRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -29,6 +32,8 @@ public class PropostaService {
     private final PropostaNumeroGenerator numeroGenerator;
     private final EmpresaService empresaService;
     private final ClienteService clienteService;
+    private final EmpresaRepository empresaRepository;
+    private final ClienteRepository clienteRepository;
 
     @Transactional(readOnly = true)
     public Page<ProposalDto> listar(String busca, String status, Pageable pageable) {
@@ -51,19 +56,15 @@ public class PropostaService {
         entity.setNuSeq(seq);
         entity.setNuNumero(String.format("%d-%04d", ano, seq));
         entity.setDsStatus("pendente");
-        PropostaMapper.applyForm(entity, request.toForm());
-        ProposalDto saved = PropostaMapper.toDto(repository.save(entity));
-        persistirCadastros(request);
-        return saved;
+        aplicarRequest(entity, request);
+        return PropostaMapper.toDto(repository.save(entity));
     }
 
     @Transactional
     public ProposalDto atualizar(Long id, ProposalWriteDto request) {
         Proposta entity = buscarEntidade(id);
-        PropostaMapper.applyForm(entity, request.toForm());
-        ProposalDto saved = PropostaMapper.toDto(repository.save(entity));
-        persistirCadastros(request);
-        return saved;
+        aplicarRequest(entity, request);
+        return PropostaMapper.toDto(repository.save(entity));
     }
 
     @Transactional
@@ -94,6 +95,31 @@ public class PropostaService {
         repository.delete(buscarEntidade(id));
     }
 
+    private void aplicarRequest(Proposta entity, ProposalWriteDto request) {
+        PropostaMapper.applyForm(entity, request.toForm());
+        PropostaMapper.applyReferencias(
+                entity,
+                resolverEmpresa(request.empresaId()),
+                resolverCliente(request.clienteId()));
+        persistirCadastros(entity, request);
+    }
+
+    private Empresa resolverEmpresa(Long empresaId) {
+        if (empresaId == null) {
+            return null;
+        }
+        return empresaRepository.findById(empresaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Empresa não encontrada"));
+    }
+
+    private Cliente resolverCliente(Long clienteId) {
+        if (clienteId == null) {
+            return null;
+        }
+        return clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado"));
+    }
+
     private Proposta buscarEntidade(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Proposta não encontrada"));
@@ -113,12 +139,18 @@ public class PropostaService {
         }
     }
 
-    private void persistirCadastros(ProposalWriteDto request) {
+    private void persistirCadastros(Proposta entity, ProposalWriteDto request) {
         if (request.deveSalvarEmpresa()) {
-            empresaService.salvarDaProposta(request.empresa(), request.empresaId());
+            Long empresaId = empresaService.salvarDaProposta(request.empresa(), request.empresaId());
+            if (empresaId != null) {
+                entity.setEmpresa(empresaRepository.getReferenceById(empresaId));
+            }
         }
         if (request.deveSalvarCliente()) {
-            clienteService.salvarDaProposta(request.cliente(), request.clienteId());
+            Long clienteId = clienteService.salvarDaProposta(request.cliente(), request.clienteId());
+            if (clienteId != null) {
+                entity.setCliente(clienteRepository.getReferenceById(clienteId));
+            }
         }
     }
 }
